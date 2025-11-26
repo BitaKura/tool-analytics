@@ -1,56 +1,16 @@
-
-from flask import Flask, request, jsonify
-from datetime import datetime
-import json
-import os
-
-app = Flask(__name__)
-ANALYTICS_FILE = "user_analytics.json"
-
-def load_analytics():
-    if os.path.exists(ANALYTICS_FILE):
-        with open(ANALYTICS_FILE, 'r') as f:
-            return json.load(f)
-    return {
-        "total_unique_users": 0,
-        "active_today": 0,
-        "total_operations": 0,
-        "user_sessions": {},
-        "last_updated": datetime.now().isoformat()
+{
+  "total_unique_users": 1,
+  "active_today": 1,
+  "total_operations": 0,
+  "unpack_operations": 0,
+  "repack_operations": 0,
+  "recent_activity": [
+    {
+      "user_id": "ADMIN",
+      "device": "M2102J20SI",
+      "action": "admin_check",
+      "time": "2024-01-01T00:00:00"
     }
-
-def save_analytics(data):
-    with open(ANALYTICS_FILE, 'w') as f:
-        json.dump(data, f, indent=2)
-
-@app.route('/analytics', methods=['POST'])
-def receive_analytics():
-    data = request.json
-    analytics = load_analytics()
-    
-    user_id = data.get('user_id')
-    
-    # Update unique users count
-    if user_id not in analytics['user_sessions']:
-        analytics['total_unique_users'] += 1
-    
-    # Update user session
-    analytics['user_sessions'][user_id] = {
-        'last_seen': datetime.now().isoformat(),
-        'device_model': data.get('device_model'),
-        'total_sessions': analytics['user_sessions'].get(user_id, {}).get('total_sessions', 0) + 1
-    }
-    
-    # Update operations count
-    analytics['total_operations'] += data.get('total_operations', 0)
-    analytics['last_updated'] = datetime.now().isoformat()
-    
-    save_analytics(analytics)
-    return jsonify({"status": "success"})
-
-@app.route('/analytics', methods=['GET'])
-def get_analytics():
-    return jsonify(load_analytics())
-
-if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5000)
+  ],
+  "last_updated": "2024-01-01T00:00:00"
+}
